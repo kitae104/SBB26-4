@@ -18,7 +18,7 @@ public class SecurityConfig {
         http.logout(Customizer.withDefaults());
 
         http.authorizeHttpRequests(auth -> auth
-
+                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/").permitAll()
                 .anyRequest().authenticated()
         );
