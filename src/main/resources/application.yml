@@ -9,8 +9,14 @@ spring:
     name: SBB
 
   devtools:
+    # noinspection YAMLIncompatibleTypes
+    livereload:
+      enabled: true
+      port: 35729
     restart:
       enabled: true
+  thymeleaf:
+    cache: false
 
   ####################################
   # MySQL 설정

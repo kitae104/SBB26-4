@@ -16,7 +16,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.formLogin(Customizer.withDefaults());
+//        http.formLogin(Customizer.withDefaults());
+        http.formLogin(form -> form
+                .loginPage("/member/login") // 로그인 페이지 URL
+                .defaultSuccessUrl("/")
+                .failureUrl("/member/login/error")
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .permitAll());
+
         http.logout(Customizer.withDefaults());
 
         http.authorizeHttpRequests(auth -> auth

@@ -2,10 +2,15 @@ package inhatc.aic.sbb.member.controller;
 
 import inhatc.aic.sbb.member.dto.MemberDto;
 import inhatc.aic.sbb.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -55,6 +60,29 @@ public class MemberController {
         }
 
         // 회원가입 처리 로직 추가 필요
+        return "redirect:/";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "member/login";
+    }
+
+    // @PostMapping("/login") 은 스프링이 구현 --> SecurityConfig에 http.formLogin() 수정
+
+    @GetMapping(value = "/login/error")
+    public String loginError(Model model){
+        model.addAttribute("loginErrorMsg", "아이디 또는 비밀번호를 확인해주세요");
+        return "/member/login";
+    }
+
+    @GetMapping("/logout")
+    public String performLogout(HttpServletRequest request, HttpServletResponse response) {
+        log.info("===============> logout");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+        }
         return "redirect:/";
     }
 }
