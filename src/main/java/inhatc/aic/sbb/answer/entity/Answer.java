@@ -1,5 +1,7 @@
 package inhatc.aic.sbb.answer.entity;
 
+import inhatc.aic.sbb.audit.BaseEntity;
+import inhatc.aic.sbb.member.entity.Member;
 import inhatc.aic.sbb.question.entity.Question;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,8 +17,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
-public class Answer {
+//@EntityListeners(AuditingEntityListener.class)
+public class Answer extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,11 +28,16 @@ public class Answer {
     @Column(columnDefinition = "TEXT")
     private String content; // 내용
 
-    @CreatedDate
-    private LocalDateTime created;  // 생성일
+//    @CreatedDate
+//    private LocalDateTime created;  // 생성일
 
     // 여러개의 응답이 하나의 질문과 관계가 있음
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;  // 질문(외래키) - toString에서 순환 참조 발생
+
+    // 답변 작성자
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member author;  // 작성자
 }

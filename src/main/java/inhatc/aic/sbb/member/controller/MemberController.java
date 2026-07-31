@@ -79,6 +79,7 @@ public class MemberController {
     @GetMapping("/logout")
     public String performLogout(HttpServletRequest request, HttpServletResponse response) {
         log.info("===============> logout");
+        // 현재 로그인 된 사용자를 가져오는 메소드(인증 정보 확인)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);

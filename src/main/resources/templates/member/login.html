@@ -30,6 +30,7 @@
             <p th:if="${loginErrorMsg}" class="error" th:text="${loginErrorMsg}"></p>
             <button class="btn btn-primary">로그인</button>
             <button type="button" class="btn btn-primary" onClick="location.href='/member/signup'">회원가입</button>
+            <!-- CSRF Token : 위조 방지 -->
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         </div>
     </form>

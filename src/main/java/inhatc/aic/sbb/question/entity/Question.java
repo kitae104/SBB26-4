@@ -1,6 +1,8 @@
 package inhatc.aic.sbb.question.entity;
 
 import inhatc.aic.sbb.answer.entity.Answer;
+import inhatc.aic.sbb.audit.BaseEntity;
+import inhatc.aic.sbb.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -16,8 +18,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)  // 자동으로 정보 입력
-public class Question {
+//@EntityListeners(AuditingEntityListener.class)  // 자동으로 정보 입력
+public class Question extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "question_id")
@@ -29,10 +31,15 @@ public class Question {
     @Column(columnDefinition = "TEXT")
     private String content; // 내용
 
-    @CreatedDate
-    private LocalDateTime created;  // 생성일
+//    @CreatedDate
+//    private LocalDateTime created;  // 생성일
 
     // 질문 하나에 여려개의 답변이 있을 수 있음
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = CascadeType.ALL)
     private List<Answer> answerList;    // 답변 리스트
+
+    // 질문 작성자
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member author;  // 작성자
 }

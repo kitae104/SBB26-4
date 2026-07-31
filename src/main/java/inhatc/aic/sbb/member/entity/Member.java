@@ -1,5 +1,6 @@
 package inhatc.aic.sbb.member.entity;
 
+import inhatc.aic.sbb.audit.BaseTimeEntity;
 import inhatc.aic.sbb.member.constant.Department;
 import inhatc.aic.sbb.member.constant.Gender;
 import jakarta.persistence.*;
@@ -16,8 +17,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
-public class Member {
+//@EntityListeners(AuditingEntityListener.class)
+public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +44,7 @@ public class Member {
     @Column(nullable = false)
     private Boolean registration;           // 등록 확인
 
-    @CreatedDate
-    private LocalDateTime created;          // 생성일
+//    @CreatedDate
+//    private LocalDateTime created;          // 생성일
 
 }
