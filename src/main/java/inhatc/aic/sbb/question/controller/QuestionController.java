@@ -1,6 +1,7 @@
 package inhatc.aic.sbb.question.controller;
 
 import inhatc.aic.sbb.answer.dto.AnswerDto;
+import inhatc.aic.sbb.member.entity.Member;
 import inhatc.aic.sbb.member.service.MemberService;
 import inhatc.aic.sbb.question.dto.QuestionDto;
 import inhatc.aic.sbb.question.entity.Question;
@@ -9,11 +10,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import javax.naming.Binding;
 import java.security.Principal;
 import java.util.List;
 
@@ -82,7 +87,48 @@ public class QuestionController {
 
         log.info("=====================> 로그인 사용자 : {}", principal.getName());
 
-        questionService.questionCreate(questionDto);
+        Member member = memberService.getMember(principal.getName());
+
+        questionService.questionCreate(questionDto, member);
         return "redirect:/question/list";
+    }
+
+    // 질문 수정을 위해 입력 폼으로 이동(Model을 이용하는 경우와 비교)
+    @PreAuthorize("isAuthenticated()") // 로그인한 사용자만 접근 가능, 사용하기전 Principal 추가 및 @EnableMethodSecurity 추가
+    @GetMapping("/modify/{id}")
+    public String modify(@PathVariable("id") Long id, QuestionDto questionDto, Principal principal, Model model){
+        Question question = questionService.getQuestion(id);
+
+        if(!question.getAuthor().getUsername().equals(principal.getName())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정 권한이 없습니다.");
+        }
+
+        questionDto.setSubject(question.getSubject());
+        questionDto.setContent(question.getContent());
+        model.addAttribute("questionDto", questionDto);
+
+        return "question/inputForm";
+    }
+
+    @PreAuthorize("isAuthenticated()") // 로그인한 사용자만 접근 가능, 사용하기전 Principal 추가 및 @EnableMethodSecurity 추가
+    @PostMapping("/modify/{id}")
+    public String modify(@PathVariable("id") Long id,
+                         @Valid QuestionDto questionDto,
+                         BindingResult bindingResult,
+                         Principal principal){
+
+        if(bindingResult.hasErrors()){
+            return "question/inputForm";
+        }
+
+        Question question = questionService.getQuestion(id);
+
+        if(!question.getAuthor().getUsername().equals(principal.getName())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정 권한이 없습니다.");
+        }
+
+        questionService.questionModify(question, questionDto);
+
+        return "redirect:/question/detail/" + id;
     }
 }

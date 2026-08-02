@@ -3,6 +3,7 @@ package inhatc.aic.sbb.member.service;
 import inhatc.aic.sbb.member.dto.MemberDto;
 import inhatc.aic.sbb.member.entity.Member;
 import inhatc.aic.sbb.member.repository.MemberRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,4 +31,8 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    public Member getMember(String name) {
+        Member member = memberRepository.findByUsername(name).orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+        return member;
+    }
 }

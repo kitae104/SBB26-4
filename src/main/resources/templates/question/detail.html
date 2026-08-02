@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/layout}">
 
 <th:block layout:fragment="css">
@@ -8,60 +9,46 @@
         .fieldError {
             color: #bd2130;
         }
-
-        .question-card {
-            background-color: #fff3cd;
-            border-color: #ffe69c;
-        }
-
-        /* 질문 카드 내부 버튼(향후 추가되는 버튼 포함)은 빨간색/흰색으로 표시 */
-        .question-card .btn {
-            background-color: #dc3545;
-            border-color: #dc3545;
-            color: #ffffff;
-        }
-
-        .answer-card {
-            background-color: #cfe2ff;
-            border-color: #9ec5fe;
-        }
-
-        .answer-submit-btn {
-            background-color: #0b5ed7;
-            border-color: #0a58ca;
-            color: #ffffff;
-        }
-
-        .answer-submit-btn:hover {
-            background-color: #0a58ca;
-            border-color: #084298;
-            color: #ffffff;
-        }
-
-        .question-badge {
-            background-color: #ffda6a;
-            color: #664d03;
-            border: 1px solid #ffcd39;
-        }
-
-        .answer-badge {
-            background-color: #9ec5fe;
-            color: #052c65;
-            border: 1px solid #6ea8fe;
-        }
     </style>
 </th:block>
 
 <div layout:fragment="content" class="container my-3">
     <!-- 질문 -->
     <h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
-    <div class="card my-3 question-card">
+    <div class="card my-3 bg-warning-subtle">
         <div class="card-body">
-            <div class="card-text" style="white-space: pre-line;" th:text="${question.content}">내용</div>
+            <div class="card-text" th:text="${question.content}"></div>
             <div class="d-flex justify-content-end">
-                <div class="badge p-2 text-start mx-3 question-badge">
+                <!-- 질문 수정 일시-->
+                <div th:if="${question.updated != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">수정일 :</div>
+                    <div th:text="${#temporals.format(question.updated, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
+
+                <div class="badge bg-warning text-dark p-2 text-start mx-3">
+                    <div class="mb-2">
+                        <span th:if="${question.author != null}" th:text="${question.author.username}"></span>
+                    </div>
                     <div th:text="${#temporals.format(question.created, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
+            </div>
+            <!-- 질문 수정/삭제 버튼 추가 -->
+            <div class="my-3">
+                <a th:href="@{|/question/modify/${question.id}|}"
+                   class="btn btn-sm btn-outline-primary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${question.author != null and
+                  #authentication.getPrincipal().getUsername() == question.author.username}"
+                   th:text="수정">수정
+                </a>
+                <!-- 페이지 이동없이 삭제 -->
+                <a href="javascript:void(0);"
+                   th:data-uri="@{|/question/delete/${question.id}|}"
+                   class="delete btn btn-sm btn-outline-danger"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author.username}"
+                   th:text="삭제">삭제
+                </a>
             </div>
         </div>
     </div>
@@ -70,22 +57,70 @@
     <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(question.answerList)}개의 답변이 있습니다.|"></h5>
 
     <!-- 답변 반복 시작 -->
-    <div class="card my-3 answer-card" th:each="answer : ${question.answerList}">
+    <div class="card my-3 bg-info-subtle" th:each="answer : ${question.answerList}">
         <div class="card-body">
             <div class="card-text" style="white-space: pre-line;" th:text="${answer.content}">답변 내용</div>
             <div class="d-flex justify-content-end">
-                <div class="badge p-2 text-start mx-3 answer-badge">
+                <!-- 답변 수정 일시-->
+                <div th:if="${answer.updated != null}" class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">수정일 :</div>
+                    <div th:text="${#temporals.format(answer.updated, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
+
+                <div class="badge bg-info text-dark p-2 text-start mx-3">
+                    <div class="mb-2">
+                        <span th:if="${answer.author != null}" th:text="${answer.author.username}"></span>
+                    </div>
                     <div th:text="${#temporals.format(answer.created, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
             </div>
+            <!-- 답변 수정/삭제 버튼 추가 -->
+            <div class="my-3">
+                <!-- 답변 수정 버튼 -->
+                <a th:href="@{|/answer/modify/${answer.id}|}"
+                   class="btn btn-sm btn-primary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
+                   th:text="수정"></a>
+                <!-- 답변 삭제 버튼 -->
+                <a href="javascript:void(0);"
+                   th:data-uri="@{|/answer/delete/${answer.id}|}"
+                   class="delete btn btn-sm btn-danger"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author.username}"
+                   th:text="삭제">
+                </a>
+            </div>
         </div>
     </div>
-    <!-- 답변 작성 -->
-    <form th:action="@{/answer/create/{id}(id=${question.id})}" method="post" class="my-3" th:object="${answerDto}">
-        <textarea name="content" id="content" rows="10" class="form-control"></textarea>
-        <p th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="fieldError">답변 내용을 입력하세요</p>
-        <input type="submit" value="답변 등록" class="btn answer-submit-btn my-2">
-    </form>
 
+    <!-- 답변 작성 -->
+    <form sec:authorize="isAuthenticated()"
+          th:action="@{/answer/create/{id}(id=${question.id})}"
+          method="post"
+          class="my-3"
+          th:object="${answerDto}">
+        <textarea th:field="*{content}"
+                  rows="10"
+                  class="form-control"></textarea>
+        <p th:if="${#fields.hasErrors('content')}"
+           th:errors="*{content}"
+           class="fieldError">답변 내용을 입력하세요</p>
+        <input type="submit" value="답변 등록" class="btn btn-primary my-2">
+    </form>
 </div>
+
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // 삭제 버튼 클릭 이벤트
+            $('.delete').click(function () {
+                if (confirm('정말 삭제하시겠습니까?')) {
+                    const uri = $(this).data('uri');
+                    window.location.href = uri;
+                }
+            });
+        });
+    </script>
+</th:block>
 </html>

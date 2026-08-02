@@ -24,7 +24,7 @@ class QuestionServiceTest {
                     .subject("질문 제목 : " + i)
                     .content("질문 내용 테스트 데이터입니다. " + i)
                     .build();
-            questionService.questionCreate(questionDto);
+//            questionService.questionCreate(questionDto);
         }
 
 //        assertEquals(300, questionService.getQuestionList().size());

@@ -1,9 +1,11 @@
 package inhatc.aic.sbb.question.service;
 
+import inhatc.aic.sbb.member.entity.Member;
 import inhatc.aic.sbb.question.dto.QuestionDto;
 import inhatc.aic.sbb.question.entity.Question;
 import inhatc.aic.sbb.question.repository.QuestionRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,11 +34,18 @@ public class QuestionService {
         return question;
     }
 
-    public void questionCreate(QuestionDto questionDto) {
+    public void questionCreate(QuestionDto questionDto, Member member) {
         Question question = Question.builder()
                 .content(questionDto.getContent())
                 .subject(questionDto.getSubject())
+                .author(member)
                 .build();
         questionRepository.save(question);
+    }
+
+    public void questionModify(Question question, @Valid QuestionDto questionDto) {
+        question.setSubject(questionDto.getSubject());
+        question.setContent(questionDto.getContent());
+        questionRepository.save(question); // id 여부에 따라 insert or update
     }
 }

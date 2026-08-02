@@ -25,9 +25,10 @@
     <h2>질문 리스트</h2>
     <table class="table table-striped">
         <thead class="table-dark">
-        <tr>
+        <tr class="text-center">
             <th>번호</th>
-            <th>제목</th>
+            <th style="width:50%">제목</th>
+            <th>글쓴이</th>
             <th>작성일</th>
         </tr>
         </thead>
@@ -39,10 +40,16 @@
                 <a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}">제목</a>
                 <span th:if="${#lists.size(question.answerList) > 0}"
                       th:text="${#lists.size(question.answerList)}"
-                      class="badge bg-primary text-white ml-2">
+                      class="badge bg-primary text-white ml-2">F
                 </span>
             </td>
-            <td th:text="${#temporals.format(question.created, 'yyyy-MM-dd HH:mm')}">작성일</td>
+            <!-- 작성자 표시 -->
+            <td class="text-center">
+              <span th:if="${question.author != null}"
+                    th:text="${question.author == null ? '익명' : question.author.username}">
+              </span>
+            </td>
+            <td class="text-center" th:text="${#temporals.format(question.created, 'yyyy-MM-dd HH:mm')}">작성일</td>
         </tr>
         </tbody>
     </table>
@@ -99,7 +106,7 @@
 <script layout:fragment="script" type="text/javascript">
     const page_elements = document.getElementsByClassName("page-link");
 
-    Array.from(page_elements).forEach(function(element) {
+    Array.from(page_elements).forEach(function (element) {
         element.addEventListener('click', function () {
             document.getElementById('page').value = this.dataset.page;
             document.getElementById('searchForm').submit();
